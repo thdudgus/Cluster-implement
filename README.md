@@ -15,3 +15,8 @@ pip install numpy matplotlib scikit-learn
 C:\Users\sy020\Documents\GitHub\Cluster-implement\ai-assignment1-skeleton>cd C:\Users\sy020\AppData\Local\Programs\Python\Python312\
 C:\Users\sy020\AppData\Local\Programs\Python\Python312>python.exe -m pip install --upgrade pip
 ```
+
+#### 실행
+```bash
+C:\Users\sy020\Documents\GitHub\Cluster-implement\ai-assignment1-skeleton>c:\users\sy020\appdata\local\programs\python\python312\python.exe "c:\Users\sy020\Documents\GitHub\Cluster-implement\ai-assignment1-skeleton\clustering.py" --data_type 0 --cluster_method 0 --cluster_num 3
+```
