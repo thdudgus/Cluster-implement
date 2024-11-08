@@ -34,7 +34,7 @@ def generate_data(type):
 
         # 생성된 데이터 시각화
         plt.scatter(X[:, 0], X[:, 1], s=50, cmap='Paired')
-        plt.show()
+        #plt.show()
 
         return X, y
 
@@ -45,8 +45,8 @@ def generate_data(type):
         print (X)
 
         # 생성된 데이터 시각화
-        plt.scatter(X[:, 0], X[:, 1], c=y, s=50, cmap='Paired')
-        plt.show()
+        plt.scatter(X[:, 0], X[:, 1], s=50, cmap='Paired')
+        #plt.show()
 
         return X, y
 
@@ -58,13 +58,40 @@ def kmeans(X, max_iterations, k):
     # max_iterations: 최대 반복 횟수
     # k: 클러스터의 개수
 
-    # k를 정하는 방법 : Elbow-method : k를 증가시키고, 각 k에 대한 objective function을 관찰.
     # (TODO) Write your code here
-    # 1.각 cluster의 중심을 data point 집합 D 내의 임의의 위치로 초기화 (cluster 중심 랜덤 초기화)
-    # 2. 각 데이터 포인트 x_i에 대해, 가장 가까운 cluster 찾기. (x_i가 어디에 속하나)
-    # 3. cluster 중심 업데이트
-    # 2~3을 cluster의 중심점이 더이상 변하지 않거나, 최대 반복횟수에 도달할 때까지 반복
+    dataSize = X.shape[0]
+    memberships = np.zeros(dataSize, dtype=int)
 
+    # 1.각 cluster의 중심을 data point 집합 D 내의 임의의 위치로 초기화 (cluster 중심 랜덤 초기화)
+    centroids = X[np.random.choice(X.shape[0], k, replace=False)]
+
+    count = 0
+    epsilon = 1e-4
+    centro_shift = 100
+
+    # 2~3을 cluster의 중심점이 더이상 변하지 않거나, 최대 반복횟수에 도달할 때까지 반복
+    while count < max_iterations and centro_shift > epsilon:
+        previous_centroids = np.copy(centroids)
+        # 2. 각 데이터 포인트 x_i에 대해, 가장 가까운 cluster 찾기. (x_i가 어디에 속하나)
+        print("Shape of X:", X.shape)
+        print("Shape of centroids:", centroids.shape)
+
+        for i in range(dataSize):
+            distances = np.linalg.norm(X[i] - centroids, axis=1)
+            memberships[i] = np.argmin(distances)
+            # closest_cluster = np.argmin(distances)
+            # memberships[i, closest_cluster] = 1 # 가장 가까운 cluster에 1 할당
+
+        # 3. cluster 중심 업데이트
+        for j in range(k):
+            #points_in_cluster = X[memberships[:, j] == 1] # cluster j에 속하는 x들의 인덱스 선택
+            points_in_cluster = X[memberships == j]  # 클러스터 j에 속하는 포인트 선택
+            if len(points_in_cluster) > 0: # cluster에 속한 x가 존재하는 경우
+                centroids[j] = points_in_cluster.mean(axis=0)  # cluster 중심 업데이트
+        
+        centro_shift = np.linalg.norm(centroids - previous_centroids)
+        count +=1
+    
     # 반환 파라미터
     # centroids: 클러스터 중심점
     # memberships: a list of memberships for data points(각 데이터 포인트의 클러스터 할당)
@@ -135,7 +162,7 @@ if __name__ == "__main__":
 
     # 클러스터 중심점을 시각화
     if args.cluster_method == 0 or 1:
-        ax.scatter(centroids_kmeans[:, 0], centroids_kmeans[:, 1], color='red', s=50, marker="X");
+        ax.scatter(centroids_kmeans[:, 0], centroids_kmeans[:, 1], color='red', s=50, marker="X")
     plt.show()
 
 
