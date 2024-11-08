@@ -73,9 +73,6 @@ def kmeans(X, max_iterations, k):
     while count < max_iterations and centro_shift > epsilon:
         previous_centroids = np.copy(centroids)
         # 2. 각 데이터 포인트 x_i에 대해, 가장 가까운 cluster 찾기. (x_i가 어디에 속하나)
-        print("Shape of X:", X.shape)
-        print("Shape of centroids:", centroids.shape)
-
         for i in range(dataSize):
             distances = np.linalg.norm(X[i] - centroids, axis=1)
             memberships[i] = np.argmin(distances)
@@ -104,9 +101,57 @@ def gmm(X, max_iterations, k):
     # max_iterations: 최대 반복 횟수
     # k: 클러스터의 개수
 
+    tolerance = 1e-6  # 파라미터 변화의 허용 오차
+    iteration = 0
+    converged = False   
+
+    # parameters : 평균, 공분산, cluster 평균 벡터
+
+    dataSize = X.shape[0] # 데이터 포인트 개수
+    mus = np.random.rand(k, X.shape[1])  # 각 클러스터의 평균 벡터 (임의 값으로 초기화)
+    covs = np.array([np.eye(X.shape[1]) for _ in range(k)])  # 각 클러스터의 공분산 행렬 (단위 행렬로 초기화)
+    pis = np.full(k, 1/k)  # 각 클러스터의 prior 확률 (모두 동일한 확률로 초기화)
+
+    memberships = np.zeros((dataSize, k)) # Posterior 확률을 저장할 배열
+
     # (TODO) Write your code here
-    # 1. 각 데이터 포인트 x에 대해 해당 포인트가 각 cluster에 속할 확률 계산.
-    # 2. parameter 업데이트
+    while not converged and iteration < max_iterations:
+        # 이전 파라미터 저장 (변화 확인용)
+        prev_mus = np.copy(mus)
+        prev_covs = np.copy(covs)
+        prev_pis = np.copy(pis)
+        # 1. 각 데이터 포인트 x에 대해 해당 포인트가 각 cluster에 속할 확률 계산.
+        for i in range (dataSize):
+            xi = X[i]
+            probabilities = np.zeros(k)
+            for alpha in range(k):
+                likelihood = multivariate_normal_pdf(xi, mus[alpha], covs[alpha])
+                probabilities[alpha] = likelihood * pis[alpha]
+            
+            # Posterior 확률 계산하여 저장
+            memberships[i] = probabilities / np.sum(probabilities)
+
+        # 2. parameter 업데이트
+        for alpha in range(k):
+            Nk = np.sum(memberships[:, alpha]) # Posterior 확률의 합 (분모)
+            diff = X - mus[alpha]  # 각 데이터 포인트와 평균의 차이
+        
+            mus[alpha] = np.sum(memberships[:, alpha].reshape(-1, 1) * X, axis=0) / Nk  # 평균 업데이트
+            pis[alpha] = Nk / dataSize # 클러스터 비율 업데이트
+            covs[alpha] = np.dot((memberships[:, alpha].reshape(-1, 1) * diff).T, diff) / Nk # 공분산 업데이트
+            
+        # 파라미터 변화량 확인
+        mus_change = np.linalg.norm(mus - prev_mus)
+        covs_change = np.linalg.norm(covs - prev_covs)
+        pis_change = np.linalg.norm(pis - prev_pis)
+
+        # 변화량이 tolerance 이하인 경우 수렴했다고 판단
+        if mus_change < tolerance and covs_change < tolerance and pis_change < tolerance:
+            converged = True
+
+        # 반복 횟수 증가
+        iteration += 1
+
     # 1~2를 parameter의 변화가 매우 작아지거나 최대 반복 횟수에 도달했을 때까지 반복.
 
     # parameter는 EM 알고리즘을 사용해서 estimate
@@ -114,7 +159,21 @@ def gmm(X, max_iterations, k):
     # 반환 파라미터
     # centroids: 클러스터 중심점
     # memberships: a list of memberships for data points(각 데이터 포인트의 클러스터 할당)
-    return centroids, memberships
+    return mus, memberships
+
+
+# 다변량 정규 분포 PDF 계산
+def multivariate_normal_pdf(x, mean, cov):
+    d = x.shape[0]  # 데이터의 차원
+    cov_det = np.linalg.det(cov)  # 공분산 행렬의 행렬식
+    cov_inv = np.linalg.inv(cov)  # 공분산 행렬의 역행렬
+    x_mu = x - mean
+    
+    coeff = 1 / ((2 * np.pi) ** (d / 2) * cov_det ** 0.5)
+    exponent = -0.5 * np.dot(x_mu.T, np.dot(cov_inv, x_mu))
+    
+    return coeff * np.exp(exponent)
+
 
 
 def dbscan(X, eps, min_pts):
