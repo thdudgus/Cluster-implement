@@ -197,7 +197,7 @@ def dbscan(X, eps, min_pts):
     for point in range(dataSize):
         if memberships[point] != -1:  # 이미 클러스터에 할당된 경우
             continue # skip
-    # 1. o가 cluster에 할당되지 않은 경우
+        # 1. o가 cluster에 할당되지 않은 경우
         # 모든 점들과의 거리를 계산하여 eps 내에 있는 이웃 점들을 찾음
         neighbors = get_neighbors(point)
 
@@ -266,7 +266,7 @@ if __name__ == "__main__":
         ax.set_title("eps = " + str(args.eps) + "       min_pts = " + str(args.min_pts))
     ax.scatter(X[:, 0], X[:, 1], c=memberships_kmeans, s=50, cmap='Paired')
     colors = ['black' if label == -1 else label for label in memberships_kmeans]  # 노이즈는 검정색
-    
+
     # 클러스터 중심점을 시각화
     if args.cluster_method in [0, 1]:  # k-means나 GMM인 경우에만
         ax.scatter(centroids_kmeans[:, 0], centroids_kmeans[:, 1], color='red', s=50, marker="X")
