@@ -76,12 +76,9 @@ def kmeans(X, max_iterations, k):
         for i in range(dataSize):
             distances = np.linalg.norm(X[i] - centroids, axis=1)
             memberships[i] = np.argmin(distances)
-            # closest_cluster = np.argmin(distances)
-            # memberships[i, closest_cluster] = 1 # 가장 가까운 cluster에 1 할당
 
         # 3. cluster 중심 업데이트
         for j in range(k):
-            #points_in_cluster = X[memberships[:, j] == 1] # cluster j에 속하는 x들의 인덱스 선택
             points_in_cluster = X[memberships == j]  # 클러스터 j에 속하는 포인트 선택
             if len(points_in_cluster) > 0: # cluster에 속한 x가 존재하는 경우
                 centroids[j] = points_in_cluster.mean(axis=0)  # cluster 중심 업데이트
