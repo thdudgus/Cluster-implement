@@ -8,7 +8,7 @@ parser = argparse.ArgumentParser(description='AI course, CAU')
 parser.add_argument('--data_type', type=int, default=0, help='0: Gaussian data, 1: Moon-shaped data')
 parser.add_argument('--cluster_method', type=int, default=0, help='0: k-Means, 1: GMM, 2: DBSCAN')
 parser.add_argument('--cluster_num', type=int, default=3, help='The number of clusters')
-parser.add_argument('--eps', type=int, default=0.2, help='The epsilon for DBSCAN')
+parser.add_argument('--eps', type=float, default=0.2, help='The epsilon for DBSCAN')  # eps를 소수점으로도 변경할 수 있도록 변경.
 parser.add_argument('--min_pts', type=int, default=5, help='The minimum number of data points')
 
 # 명령줄 인자를 파싱
@@ -216,8 +216,7 @@ def dbscan(X, eps, min_pts):
             neighbor_idx = seeds[i]
 
             if memberships[neighbor_idx] == -1:  # 노이즈로 할당된 점을 클러스터에 포함
-                i += 1
-                continue
+                memberships[neighbor_idx] = cluster_id
             elif memberships[neighbor_idx] != -1:  # 이미 클러스터에 할당된 경우 스킵
                 i += 1
                 continue
@@ -256,12 +255,18 @@ if __name__ == "__main__":
     else:
         pass
 
-    # 결과를 시각화
+    # 결과를 시각화 
     fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(1, 1, 1)
-    ax.set_title("K = " + str(args.cluster_num))
-    ax.scatter(X[:, 0], X[:, 1], c=memberships_kmeans, s=50, cmap='Paired')
 
+    # 각 경우에 따라 타이틀 다르게 출력되도록 수정
+    if args.cluster_method in [0, 1]:  # k-means나 GMM인 경우에만
+        ax.set_title("K = " + str(args.cluster_num))
+    else :
+        ax.set_title("eps = " + str(args.eps) + "       min_pts = " + str(args.min_pts))
+    ax.scatter(X[:, 0], X[:, 1], c=memberships_kmeans, s=50, cmap='Paired')
+    colors = ['black' if label == -1 else label for label in memberships_kmeans]  # 노이즈는 검정색
+    
     # 클러스터 중심점을 시각화
     if args.cluster_method in [0, 1]:  # k-means나 GMM인 경우에만
         ax.scatter(centroids_kmeans[:, 0], centroids_kmeans[:, 1], color='red', s=50, marker="X")
