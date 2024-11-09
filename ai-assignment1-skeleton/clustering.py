@@ -1,11 +1,11 @@
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.datasets import make_blobs, make_moons
+from sklearn.datasets import make_blobs, make_moons, make_circles
 
 # argparse를 사용하여 명령줄에서 인자를 받을 수 있도록 설정
 parser = argparse.ArgumentParser(description='AI course, CAU')
-parser.add_argument('--data_type', type=int, default=0, help='0: Gaussian data, 1: Moon-shaped data')
+parser.add_argument('--data_type', type=int, default=0, help='0: Gaussian data, 1: Moon-shaped data, 2: Circle-shaped data')  # 원형 데이터셋 추가
 parser.add_argument('--cluster_method', type=int, default=0, help='0: k-Means, 1: GMM, 2: DBSCAN')
 parser.add_argument('--cluster_num', type=int, default=3, help='The number of clusters')
 parser.add_argument('--eps', type=float, default=0.2, help='The epsilon for DBSCAN')  # eps를 소수점으로도 변경할 수 있도록 변경.
@@ -38,7 +38,7 @@ def generate_data(type):
 
         return X, y
 
-    else:
+    elif type == 1:
         # 더블 문(half-moon) 모양의 데이터를 생성
         # Data type 2: double moon shaped data
         X, y = make_moons(200, noise=.05, random_state=0)
@@ -47,6 +47,14 @@ def generate_data(type):
         # 생성된 데이터 시각화
         plt.scatter(X[:, 0], X[:, 1], s=50, cmap='Paired')
         #plt.show()
+    
+    elif type == 2:  # 새 데이터 추가
+        # 원형 데이터 (make_circles 사용)
+        X, y = make_circles(n_samples=200, factor=0.5, noise=0.05, random_state=0)
+        # 데이터 시각화
+        plt.scatter(X[:, 0], X[:, 1], s=50, cmap='Paired')
+        plt.title("Generated Data")
+        # plt.show()
 
         return X, y
 
