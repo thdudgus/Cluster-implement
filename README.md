@@ -16,7 +16,7 @@ C:\Users\sy020\Documents\GitHub\Cluster-implement\ai-assignment1-skeleton>cd C:\
 C:\Users\sy020\AppData\Local\Programs\Python\Python312>python.exe -m pip install --upgrade pip
 ```
 
-#### 실행
+#### Run
 
 - k-means, GMM
 ```bash
