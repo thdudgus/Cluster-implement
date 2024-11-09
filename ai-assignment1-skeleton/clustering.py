@@ -159,7 +159,8 @@ def gmm(X, max_iterations, k):
     # 반환 파라미터
     # centroids: 클러스터 중심점
     # memberships: a list of memberships for data points(각 데이터 포인트의 클러스터 할당)
-    return mus, memberships
+    final_memberships = np.argmax(memberships, axis=1)  # 각 데이터 포인트에 대한 클러스터 할당
+    return mus, final_memberships
 
 
 # 다변량 정규 분포 PDF 계산
